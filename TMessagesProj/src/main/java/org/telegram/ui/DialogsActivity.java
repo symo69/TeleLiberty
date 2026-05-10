@@ -2808,7 +2808,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             requestPeerBotId = arguments.getLong("requestPeerBotId", 0);
         }
-
         if (initialDialogsType == DIALOGS_TYPE_DEFAULT) {
             askAboutContacts = MessagesController.getGlobalNotificationsSettings().getBoolean("askAboutContacts", true);
             SharedConfig.loadProxyList();
@@ -10718,7 +10717,15 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
-            return messagesController.getDialogs(folderId);
+            // TeleLiberty policy: default dialogs surface personal chats only.
+            ArrayList<TLRPC.Dialog> dialogs = messagesController.getDialogs(folderId);
+            ArrayList<TLRPC.Dialog> usersDialogs = new ArrayList<>();
+            for (TLRPC.Dialog dialog : dialogs) {
+                if (DialogObject.isUserDialog(dialog.id) || DialogObject.isEncryptedDialog(dialog.id)) {
+                    usersDialogs.add(dialog);
+                }
+            }
+            return usersDialogs;
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
             return messagesController.dialogsServerOnly;
         } else if (dialogsType == DIALOGS_TYPE_ADD_USERS_TO) {
@@ -12989,6 +12996,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private void openWriteContacts() {
         Bundle args = new Bundle();
         args.putBoolean("destroyAfterSelect", true);
+        args.putBoolean("onlyUsers", true);
         presentFragment(new ContactsActivity(args));
     }
 
@@ -13171,10 +13179,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 });
             });
             io.addGap();
-            io.add(R.drawable.outline_groups_24, getString(R.string.NewGroup), () -> {
-                Bundle args = new Bundle();
-                presentFragment(new GroupCreateActivity(args));
-            });
             io.add(R.drawable.outline_saved_24, getString(R.string.SavedMessages), () -> {
                 Bundle args = new Bundle();
                 args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
