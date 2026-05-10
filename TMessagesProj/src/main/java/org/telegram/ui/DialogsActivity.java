@@ -2808,12 +2808,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             requestPeerBotId = arguments.getLong("requestPeerBotId", 0);
         }
-        // TeleLiberty policy: disable group/channel selections even if callers pass permissive args.
-        allowGroups = false;
-        allowMegagroups = false;
-        allowLegacyGroups = false;
-        allowChannels = false;
-
         if (initialDialogsType == DIALOGS_TYPE_DEFAULT) {
             askAboutContacts = MessagesController.getGlobalNotificationsSettings().getBoolean("askAboutContacts", true);
             SharedConfig.loadProxyList();
@@ -10724,7 +10718,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
             // TeleLiberty policy: default dialogs surface personal chats only.
-            return messagesController.dialogsUsersOnly;
+            ArrayList<TLRPC.Dialog> dialogs = messagesController.getDialogs(folderId);
+            ArrayList<TLRPC.Dialog> usersDialogs = new ArrayList<>(dialogs.size());
+            for (TLRPC.Dialog dialog : dialogs) {
+                if (DialogObject.isUserDialog(dialog.id) || DialogObject.isEncryptedDialog(dialog.id)) {
+                    usersDialogs.add(dialog);
+                }
+            }
+            return usersDialogs;
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
             return messagesController.dialogsServerOnly;
         } else if (dialogsType == DIALOGS_TYPE_ADD_USERS_TO) {
