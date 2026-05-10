@@ -2808,6 +2808,10 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             requestPeerBotId = arguments.getLong("requestPeerBotId", 0);
         }
+        allowGroups = false;
+        allowMegagroups = false;
+        allowLegacyGroups = false;
+        allowChannels = false;
 
         if (initialDialogsType == DIALOGS_TYPE_DEFAULT) {
             askAboutContacts = MessagesController.getGlobalNotificationsSettings().getBoolean("askAboutContacts", true);
@@ -10718,7 +10722,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
-            return messagesController.getDialogs(folderId);
+            return messagesController.dialogsUsersOnly;
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
             return messagesController.dialogsServerOnly;
         } else if (dialogsType == DIALOGS_TYPE_ADD_USERS_TO) {
@@ -12989,6 +12993,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private void openWriteContacts() {
         Bundle args = new Bundle();
         args.putBoolean("destroyAfterSelect", true);
+        args.putBoolean("onlyUsers", true);
         presentFragment(new ContactsActivity(args));
     }
 
@@ -13171,10 +13176,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 });
             });
             io.addGap();
-            io.add(R.drawable.outline_groups_24, getString(R.string.NewGroup), () -> {
-                Bundle args = new Bundle();
-                presentFragment(new GroupCreateActivity(args));
-            });
             io.add(R.drawable.outline_saved_24, getString(R.string.SavedMessages), () -> {
                 Bundle args = new Bundle();
                 args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
