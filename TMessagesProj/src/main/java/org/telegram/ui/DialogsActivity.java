@@ -10719,7 +10719,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
             // TeleLiberty policy: default dialogs surface personal chats only.
             ArrayList<TLRPC.Dialog> dialogs = messagesController.getDialogs(folderId);
-            ArrayList<TLRPC.Dialog> usersDialogs = new ArrayList<>(dialogs.size());
+            ArrayList<TLRPC.Dialog> usersDialogs = new ArrayList<>();
             for (TLRPC.Dialog dialog : dialogs) {
                 if (DialogObject.isUserDialog(dialog.id) || DialogObject.isEncryptedDialog(dialog.id)) {
                     usersDialogs.add(dialog);
