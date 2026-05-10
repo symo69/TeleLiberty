@@ -2808,6 +2808,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
             requestPeerBotId = arguments.getLong("requestPeerBotId", 0);
         }
+        // TeleLiberty policy: disable group/channel selections even if callers pass permissive args.
         allowGroups = false;
         allowMegagroups = false;
         allowLegacyGroups = false;
@@ -10722,6 +10723,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         MessagesController messagesController = AccountInstance.getInstance(currentAccount).getMessagesController();
         if (dialogsType == DIALOGS_TYPE_DEFAULT) {
+            // TeleLiberty policy: default dialogs surface personal chats only.
             return messagesController.dialogsUsersOnly;
         } else if (dialogsType == DIALOGS_TYPE_WIDGET || dialogsType == DIALOGS_TYPE_IMPORT_HISTORY) {
             return messagesController.dialogsServerOnly;
