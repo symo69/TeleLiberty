@@ -97,7 +97,7 @@ jobs:
       - name: Install Android packages
         run: |
           yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platform-tools" "platforms;35" "build-tools;35.0.0" "ndk;21.4.7075529"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;21.4.7075529"
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
