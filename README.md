@@ -34,6 +34,8 @@ You will require Android Studio 3.4, Android NDK rev. 20 and Android SDK 8.1
 6. Fill out values in TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java – there’s a link for each of the variables showing where and which data to obtain.
 7. You are ready to compile Telegram.
 
+If you want GitHub Actions to build the APK for you, use the workflow in `.github/workflows/android-apk.yml`. Run it manually from Actions, or push a tag that matches `apk-*` to publish a GitHub Release with the generated APK attached.
+
 ### Localization
 
 We moved all translations to https://translations.telegram.org/en/android/. Please use it.
