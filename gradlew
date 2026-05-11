@@ -89,6 +89,51 @@ Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
 fi
 
+java_major_version() {
+    local version_output
+    local version_string
+
+    version_output="$($1 -version 2>&1 | head -n 1)"
+
+    if [[ "$version_output" =~ \"1\.([0-9]+)\. ]]; then
+        version_string="${BASH_REMATCH[1]}"
+    elif [[ "$version_output" =~ \"([0-9]+)(\.|\") ]]; then
+        version_string="${BASH_REMATCH[1]}"
+    else
+        version_string="0"
+    fi
+
+    echo "$version_string"
+}
+
+CURRENT_JAVA_MAJOR="$(java_major_version "$JAVACMD")"
+
+if [ "$CURRENT_JAVA_MAJOR" -lt 17 ] ; then
+    for candidate in \
+        /usr/lib/jvm/java-17-openjdk-amd64 \
+        /usr/lib/jvm/temurin-17-jdk-amd64 \
+        /usr/lib/jvm/temurin-17-jdk \
+        /usr/lib/jvm/java-17-temurin \
+        /opt/java/17 \
+        /opt/jdk-17; do
+        if [ -x "$candidate/bin/java" ] ; then
+            CANDIDATE_MAJOR="$(java_major_version "$candidate/bin/java")"
+            if [ "$CANDIDATE_MAJOR" -ge 17 ] ; then
+                JAVA_HOME="$candidate"
+                JAVACMD="$JAVA_HOME/bin/java"
+                CURRENT_JAVA_MAJOR="$CANDIDATE_MAJOR"
+                break
+            fi
+        fi
+    done
+fi
+
+if [ "$CURRENT_JAVA_MAJOR" -lt 17 ] ; then
+    die "ERROR: Android Gradle plugin requires Java 17 to run, but the currently selected Java is too old.
+
+Please set JAVA_HOME to a Java 17 installation or install Java 17 and try again."
+fi
+
 # Increase the maximum file descriptors if we can.
 if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
     MAX_FD_LIMIT=`ulimit -H -n`

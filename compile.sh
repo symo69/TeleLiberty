@@ -13,14 +13,33 @@ echo "📍 Directorio: $(pwd)"
 echo "📦 Módulo: TMessagesProj_App"
 echo ""
 
+# Paso 0: Asegurar Java 17
+for candidate in \
+    /usr/lib/jvm/java-17-openjdk-amd64 \
+    /usr/lib/jvm/temurin-17-jdk-amd64 \
+    /usr/lib/jvm/temurin-17-jdk \
+    /usr/lib/jvm/java-17-temurin \
+    /opt/java/17 \
+    /opt/jdk-17; do
+    if [ -x "$candidate/bin/java" ]; then
+        export JAVA_HOME="$candidate"
+        export PATH="$JAVA_HOME/bin:$PATH"
+        break
+    fi
+done
+
+if ! java -version >/dev/null 2>&1; then
+    echo "❌ No se encontró Java 17 en este entorno."
+    exit 1
+fi
+
 # Paso 1: Preparar gradle
 echo "🔧 Preparando Gradle..."
 chmod +x gradlew
-chmod +x gradle/wrapper/gradle-wrapper.jar
 
 # Paso 2: Limpiar compilaciones previas (opcional)
 echo "🧹 Limpiando compilaciones previas..."
-./gradlew clean --parallel --daemon
+./gradlew clean --parallel --daemon --no-daemon
 
 # Paso 3: Compilar el APK
 echo ""
@@ -30,7 +49,7 @@ echo ""
 ./gradlew :TMessagesProj_App:assembleRelease \
     -x test \
     --parallel \
-    --daemon \
+    --no-daemon \
     --info
 
 # Paso 4: Verificar resultado
